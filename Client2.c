@@ -1,7 +1,7 @@
+
 #include <stdio.h>
 
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
-
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
@@ -14,29 +14,23 @@ int main()
 
     SOCKET client = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-    SOCKADDR_IN addr;
+    // Phan giai ten mien
     addrinfo* info;
-
+    SOCKADDR_IN addr;
     int ret = getaddrinfo("bunoc.net", "http", NULL, &info);
     if (ret != 0)
     {
-        printf("Khong phan giai duoc ten mien");
+        printf("getaddrinfo() failed\n");
         return 1;
     }
 
     memcpy(&addr, info->ai_addr, info->ai_addrlen);
 
-    ret = connect(client, (SOCKADDR*)&addr, sizeof(addr));
-    if (ret == SOCKET_ERROR)
-    {
-        printf("Khong ket noi duoc");
-        return 1;
-    }
+    connect(client, (SOCKADDR*)&addr, sizeof(addr));
 
-    const char* msg = "HEAD HTTP/1.1\r\nHost: bunoc.net\r\n\r\n";
-    send(client, msg, strlen(msg), 0);
+    char buf[2048] = "GET / HTTP/1.1\r\nHost: bunoc.net\r\n\r\n";
+    send(client, buf, strlen(buf), 0);
 
-    char buf[2048];
     while (1)
     {
         ret = recv(client, buf, sizeof(buf), 0);
@@ -52,3 +46,4 @@ int main()
     closesocket(client);
     WSACleanup();
 }
+ 
